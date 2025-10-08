@@ -1,0 +1,1 @@
+import React from 'react';\n\nconst ProfilePage = () => (\n  <div className=\"container\" style={{ padding: '2rem' }}>\n    <h1>Profile Page</h1>\n    <p>User profile management will be implemented here.</p>\n  </div>\n);\n\nexport default ProfilePage;

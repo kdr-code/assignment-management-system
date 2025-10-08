@@ -1,0 +1,1 @@
+import React from 'react';\n\nconst RegisterPage = () => {\n  return (\n    <div className=\"container\" style={{ padding: '2rem', textAlign: 'center' }}>\n      <h1>Register Page</h1>\n      <p>Registration form will be implemented here.</p>\n    </div>\n  );\n};\n\nexport default RegisterPage;

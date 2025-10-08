@@ -1,0 +1,1 @@
+import React from 'react';\n\nconst TeacherDashboard = () => {\n  return (\n    <div className=\"container\" style={{ padding: '2rem' }}>\n      <h1>Teacher Dashboard</h1>\n      <p>Teacher dashboard with assignment management will be implemented here.</p>\n    </div>\n  );\n};\n\nexport default TeacherDashboard;

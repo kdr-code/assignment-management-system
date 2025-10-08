@@ -1,0 +1,1 @@
+import React from 'react';\n\nconst AssignmentDetails = () => (\n  <div className=\"container\" style={{ padding: '2rem' }}>\n    <h1>Assignment Details</h1>\n    <p>Detailed assignment view will be implemented here.</p>\n  </div>\n);\n\nexport default AssignmentDetails;
