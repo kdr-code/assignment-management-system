@@ -1,1 +1,99 @@
-import React from 'react';\n\nconst RegisterPage = () => {\n  return (\n    <div className=\"container\" style={{ padding: '2rem', textAlign: 'center' }}>\n      <h1>Register Page</h1>\n      <p>Registration form will be implemented here.</p>\n    </div>\n  );\n};\n\nexport default RegisterPage;
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+
+const RegisterPage = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'student'
+  });
+  const { register, loading, error } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const success = await register(formData);
+    if (success) {
+      navigate(formData.role === 'teacher' ? '/teacher' : '/student');
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>Register</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="role">Role</label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+            >
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </div>
+          
+          {error && <div className="error">{error}</div>}
+          
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Register'}
+          </button>
+        </form>
+        
+        <p>
+          Already have an account? <Link to="/login">Login here</Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default RegisterPage;

@@ -1,1 +1,18 @@
-/**\n * LoadingSpinner Component with Advanced Animations\n * Demonstrates modern CSS animations and React patterns\n */\n\nimport React from 'react';\n\nconst LoadingSpinner = ({ message = '', className = '' }) => {\n  return (\n    <div className={`flex flex-col items-center gap-4 ${className}`} role=\"status\" aria-live=\"polite\">\n      <div className=\"loading-spinner\" aria-hidden=\"true\" />\n      {message && (\n        <p className=\"text-sm text-secondary\">{message}</p>\n      )}\n      <span style={{ position: 'absolute', left: '-10000px', width: '1px', height: '1px', overflow: 'hidden' }}>\n        Loading...\n      </span>\n    </div>\n  );\n};\n\nexport default React.memo(LoadingSpinner);
+import React from 'react';
+
+const LoadingSpinner = ({ size = 'medium', message = 'Loading...', className = '' }) => {
+  const sizeClasses = {
+    small: 'w-4 h-4',
+    medium: 'w-8 h-8', 
+    large: 'w-12 h-12'
+  };
+
+  return (
+    <div className={`loading-spinner ${className}`}>
+      <div className={`spinner ${sizeClasses[size]}`}></div>
+      {message && <p className="loading-message">{message}</p>}
+    </div>
+  );
+};
+
+export default LoadingSpinner;

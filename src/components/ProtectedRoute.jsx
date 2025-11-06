@@ -1,1 +1,24 @@
-/**\n * ProtectedRoute Component with Role-Based Access Control\n * \n * Demonstrates:\n * - Authentication guards\n * - Role-based authorization\n * - Route protection patterns\n * - Loading states and redirects\n */\n\nimport React from 'react';\nimport { Navigate, useLocation } from 'react-router-dom';\nimport { useAuth } from '../contexts/AuthContext';\nimport LoadingSpinner from './LoadingSpinner';\n\nconst ProtectedRoute = ({ children, requiredRole = null, redirectTo = '/login' }) => {\n  const { user, isAuthenticated, isLoading } = useAuth();\n  const location = useLocation();\n\n  // Show loading spinner while authentication is being checked\n  if (isLoading) {\n    return (\n      <div className=\"flex items-center justify-center\" style={{ minHeight: '100vh' }}>\n        <LoadingSpinner \n          message=\"Verifying authentication...\" \n        />\n      </div>\n    );\n  }\n\n  // Redirect to login if not authenticated\n  if (!isAuthenticated) {\n    return (\n      <Navigate \n        to={redirectTo} \n        state={{ from: location.pathname }} \n        replace \n      />\n    );\n  }\n\n  // Check role-based access\n  if (requiredRole && user?.role !== requiredRole) {\n    return (\n      <div className=\"container\" style={{ textAlign: 'center', padding: '3rem 1rem' }}>\n        <div className=\"card\" style={{ maxWidth: '500px', margin: '0 auto' }}>\n          <div style={{ marginBottom: '2rem' }}>\n            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🚫</div>\n            <h2 style={{ color: 'var(--error-600)', marginBottom: '1rem' }}>\n              Access Denied\n            </h2>\n            <p style={{ color: 'var(--secondary-600)', marginBottom: '2rem' }}>\n              You don't have permission to access this page. \n              {requiredRole && (\n                <span>\n                  {' '}This page requires <strong>{requiredRole}</strong> privileges.\n                </span>\n              )}\n            </p>\n          </div>\n          \n          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>\n            <button \n              className=\"btn-secondary\"\n              onClick={() => window.history.back()}\n            >\n              Go Back\n            </button>\n            <button \n              className=\"btn-primary\"\n              onClick={() => window.location.href = '/'}\n            >\n              Go Home\n            </button>\n          </div>\n          \n          <div style={{ \n            marginTop: '2rem', \n            padding: '1rem', \n            backgroundColor: 'var(--secondary-100)', \n            borderRadius: 'var(--radius-md)',\n            fontSize: '0.875rem',\n            color: 'var(--secondary-600)'\n          }}>\n            <p><strong>Current Role:</strong> {user?.role || 'None'}</p>\n            <p><strong>Required Role:</strong> {requiredRole || 'Any authenticated user'}</p>\n          </div>\n        </div>\n      </div>\n    );\n  }\n\n  // Render protected content\n  return children;\n};\n\nexport default React.memo(ProtectedRoute);
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;

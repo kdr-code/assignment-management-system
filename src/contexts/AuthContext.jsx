@@ -1,1 +1,85 @@
-/**\n * Authentication Context with Advanced ES6+ Features\n * \n * This module demonstrates excellent JavaScript/ES6+ implementation:\n * - Modern ES6+ syntax (arrow functions, destructuring, template literals)\n * - Advanced async/await patterns with proper error handling\n * - Custom hooks with sophisticated state management\n * - Local storage integration with JSON serialization\n * - React Context API with provider pattern\n * - TypeScript-style JSDoc documentation\n * - Modern module imports/exports\n * - Error boundary patterns\n * - Performance optimizations with useCallback and useMemo\n */\n\nimport React, { \n  createContext, \n  useContext, \n  useState, \n  useEffect, \n  useCallback, \n  useMemo,\n  useReducer \n} from 'react';\n\n// ===== CONSTANTS AND ENUMS =====\nconst AUTH_STORAGE_KEYS = {\n  USER: 'auth_user',\n  TOKEN: 'auth_token',\n  REFRESH_TOKEN: 'auth_refresh_token',\n  EXPIRES_AT: 'auth_expires_at'\n} as const;\n\nconst USER_ROLES = {\n  STUDENT: 'student',\n  TEACHER: 'teacher',\n  ADMIN: 'admin'\n} as const;\n\nconst AUTH_STATES = {\n  IDLE: 'idle',\n  LOADING: 'loading',\n  AUTHENTICATED: 'authenticated',\n  UNAUTHENTICATED: 'unauthenticated',\n  ERROR: 'error'\n} as const;\n\n// ===== TYPE DEFINITIONS (JSDoc Style) =====\n/**\n * @typedef {Object} User\n * @property {string} id - Unique user identifier\n * @property {string} name - User's full name\n * @property {string} email - User's email address\n * @property {string} role - User role (student, teacher, admin)\n * @property {string} avatar - User avatar URL\n * @property {Date} createdAt - Account creation date\n * @property {Object} profile - Extended user profile data\n */\n\n/**\n * @typedef {Object} AuthState\n * @property {User|null} user - Current authenticated user\n * @property {string} status - Current authentication status\n * @property {string|null} error - Current error message\n * @property {boolean} isLoading - Loading state indicator\n * @property {boolean} isAuthenticated - Authentication state\n */\n\n// ===== REDUCER FOR COMPLEX STATE MANAGEMENT =====\nconst authReducer = (state, action) => {\n  switch (action.type) {\n    case 'AUTH_START':\n      return {\n        ...state,\n        status: AUTH_STATES.LOADING,\n        error: null,\n        isLoading: true\n      };\n      \n    case 'AUTH_SUCCESS':\n      return {\n        ...state,\n        status: AUTH_STATES.AUTHENTICATED,\n        user: action.payload.user,\n        error: null,\n        isLoading: false,\n        isAuthenticated: true\n      };\n      \n    case 'AUTH_FAILURE':\n      return {\n        ...state,\n        status: AUTH_STATES.ERROR,\n        user: null,\n        error: action.payload.error,\n        isLoading: false,\n        isAuthenticated: false\n      };\n      \n    case 'AUTH_LOGOUT':\n      return {\n        ...state,\n        status: AUTH_STATES.UNAUTHENTICATED,\n        user: null,\n        error: null,\n        isLoading: false,\n        isAuthenticated: false\n      };\n      \n    case 'AUTH_UPDATE_USER':\n      return {\n        ...state,\n        user: { ...state.user, ...action.payload }\n      };\n      \n    case 'CLEAR_ERROR':\n      return {\n        ...state,\n        error: null\n      };\n      \n    default:\n      throw new Error(`Unhandled action type: ${action.type}`);\n  }\n};\n\n// ===== INITIAL STATE =====\nconst initialAuthState = {\n  user: null,\n  status: AUTH_STATES.IDLE,\n  error: null,\n  isLoading: false,\n  isAuthenticated: false\n};\n\n// ===== CONTEXT CREATION =====\nconst AuthContext = createContext(undefined);\n\n// ===== UTILITY FUNCTIONS WITH ES6+ FEATURES =====\n\n/**\n * Advanced local storage utility with error handling and JSON serialization\n * @param {string} key - Storage key\n * @param {any} value - Value to store\n */\nconst setStorageItem = (key, value) => {\n  try {\n    const serializedValue = JSON.stringify(value);\n    localStorage.setItem(key, serializedValue);\n  } catch (error) {\n    console.error(`Failed to store ${key}:`, error);\n  }\n};\n\n/**\n * Retrieve and parse data from localStorage with error handling\n * @param {string} key - Storage key\n * @returns {any|null} Parsed value or null\n */\nconst getStorageItem = (key) => {\n  try {\n    const item = localStorage.getItem(key);\n    return item ? JSON.parse(item) : null;\n  } catch (error) {\n    console.error(`Failed to retrieve ${key}:`, error);\n    return null;\n  }\n};\n\n/**\n * Remove multiple items from localStorage\n * @param {string[]} keys - Array of keys to remove\n */\nconst removeStorageItems = (keys) => {\n  keys.forEach(key => {\n    try {\n      localStorage.removeItem(key);\n    } catch (error) {\n      console.error(`Failed to remove ${key}:`, error);\n    }\n  });\n};\n\n/**\n * Advanced token validation with expiration check\n * @param {string} token - JWT token\n * @returns {boolean} Is token valid\n */\nconst isTokenValid = (token) => {\n  if (!token) return false;\n  \n  try {\n    const expiresAt = getStorageItem(AUTH_STORAGE_KEYS.EXPIRES_AT);\n    if (!expiresAt) return false;\n    \n    const now = new Date().getTime();\n    const expiration = new Date(expiresAt).getTime();\n    \n    return now < expiration;\n  } catch (error) {\n    console.error('Token validation failed:', error);\n    return false;\n  }\n};\n\n/**\n * Mock API simulation with realistic delays and error handling\n * @param {Object} credentials - Login credentials\n * @returns {Promise<Object>} Authentication result\n */\nconst mockAuthAPI = {\n  // Simulate login with sophisticated validation\n  login: async ({ email, password, role }) => {\n    // Simulate network delay\n    await new Promise(resolve => setTimeout(resolve, 1500));\n    \n    // Simulate validation\n    if (!email || !password) {\n      throw new Error('Email and password are required');\n    }\n    \n    if (!email.includes('@')) {\n      throw new Error('Please enter a valid email address');\n    }\n    \n    if (password.length < 6) {\n      throw new Error('Password must be at least 6 characters');\n    }\n    \n    // Mock successful response with realistic user data\n    const mockUser = {\n      id: `user_${Date.now()}`,\n      name: role === USER_ROLES.TEACHER \n        ? `Dr. ${email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1)}` \n        : email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),\n      email,\n      role,\n      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=3b82f6&color=fff`,\n      createdAt: new Date(),\n      profile: {\n        department: role === USER_ROLES.TEACHER ? 'Computer Science' : null,\n        studentId: role === USER_ROLES.STUDENT ? `ST${Date.now().toString().slice(-6)}` : null,\n        semester: role === USER_ROLES.STUDENT ? 3 : null,\n        specialization: role === USER_ROLES.TEACHER ? 'Frontend Development' : null\n      }\n    };\n    \n    const mockToken = `jwt_token_${btoa(JSON.stringify({ userId: mockUser.id, role }))}`;\n    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours\n    \n    return {\n      user: mockUser,\n      token: mockToken,\n      expiresAt: expiresAt.toISOString()\n    };\n  },\n  \n  // Simulate registration\n  register: async ({ name, email, password, role }) => {\n    await new Promise(resolve => setTimeout(resolve, 2000));\n    \n    // Enhanced validation\n    const errors = [];\n    if (!name?.trim()) errors.push('Name is required');\n    if (!email?.trim()) errors.push('Email is required');\n    if (!password?.trim()) errors.push('Password is required');\n    if (!role) errors.push('Role selection is required');\n    \n    if (errors.length > 0) {\n      throw new Error(errors.join(', '));\n    }\n    \n    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {\n      throw new Error('Please enter a valid email address');\n    }\n    \n    if (password.length < 8) {\n      throw new Error('Password must be at least 8 characters');\n    }\n    \n    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)/.test(password)) {\n      throw new Error('Password must contain at least one uppercase letter, one lowercase letter, and one number');\n    }\n    \n    // Return same structure as login\n    return mockAuthAPI.login({ email, password, role });\n  },\n  \n  // Simulate logout\n  logout: async () => {\n    await new Promise(resolve => setTimeout(resolve, 500));\n    return { success: true };\n  }\n};\n\n// ===== CUSTOM HOOK FOR AUTHENTICATION =====\n/**\n * Custom hook to access authentication context\n * @returns {Object} Authentication context value\n * @throws {Error} If used outside AuthProvider\n */\nexport const useAuth = () => {\n  const context = useContext(AuthContext);\n  \n  if (context === undefined) {\n    throw new Error('useAuth must be used within an AuthProvider');\n  }\n  \n  return context;\n};\n\n// ===== MAIN PROVIDER COMPONENT =====\n/**\n * Authentication Provider with advanced state management\n * @param {Object} props - Component props\n * @param {React.ReactNode} props.children - Child components\n */\nexport const AuthProvider = ({ children }) => {\n  const [authState, dispatch] = useReducer(authReducer, initialAuthState);\n  const [initializationComplete, setInitializationComplete] = useState(false);\n  \n  // ===== MEMOIZED VALUES =====\n  const contextValue = useMemo(() => ({\n    ...authState,\n    // Actions\n    login,\n    register,\n    logout,\n    updateUser,\n    clearError,\n    // Utilities\n    hasRole,\n    canAccess,\n    isInitialized: initializationComplete\n  }), [authState, initializationComplete]);\n  \n  // ===== AUTHENTICATION ACTIONS =====\n  \n  /**\n   * Login user with advanced error handling\n   * @param {Object} credentials - Login credentials\n   */\n  const login = useCallback(async (credentials) => {\n    dispatch({ type: 'AUTH_START' });\n    \n    try {\n      const result = await mockAuthAPI.login(credentials);\n      \n      // Store authentication data\n      setStorageItem(AUTH_STORAGE_KEYS.USER, result.user);\n      setStorageItem(AUTH_STORAGE_KEYS.TOKEN, result.token);\n      setStorageItem(AUTH_STORAGE_KEYS.EXPIRES_AT, result.expiresAt);\n      \n      dispatch({ \n        type: 'AUTH_SUCCESS', \n        payload: { user: result.user } \n      });\n      \n      return { success: true, user: result.user };\n    } catch (error) {\n      dispatch({ \n        type: 'AUTH_FAILURE', \n        payload: { error: error.message } \n      });\n      return { success: false, error: error.message };\n    }\n  }, []);\n  \n  /**\n   * Register new user\n   * @param {Object} userData - Registration data\n   */\n  const register = useCallback(async (userData) => {\n    dispatch({ type: 'AUTH_START' });\n    \n    try {\n      const result = await mockAuthAPI.register(userData);\n      \n      // Store authentication data\n      setStorageItem(AUTH_STORAGE_KEYS.USER, result.user);\n      setStorageItem(AUTH_STORAGE_KEYS.TOKEN, result.token);\n      setStorageItem(AUTH_STORAGE_KEYS.EXPIRES_AT, result.expiresAt);\n      \n      dispatch({ \n        type: 'AUTH_SUCCESS', \n        payload: { user: result.user } \n      });\n      \n      return { success: true, user: result.user };\n    } catch (error) {\n      dispatch({ \n        type: 'AUTH_FAILURE', \n        payload: { error: error.message } \n      });\n      return { success: false, error: error.message };\n    }\n  }, []);\n  \n  /**\n   * Logout user and clear all stored data\n   */\n  const logout = useCallback(async () => {\n    dispatch({ type: 'AUTH_START' });\n    \n    try {\n      await mockAuthAPI.logout();\n      \n      // Clear all stored authentication data\n      removeStorageItems(Object.values(AUTH_STORAGE_KEYS));\n      \n      dispatch({ type: 'AUTH_LOGOUT' });\n      \n      return { success: true };\n    } catch (error) {\n      // Even if logout fails, clear local data\n      removeStorageItems(Object.values(AUTH_STORAGE_KEYS));\n      dispatch({ type: 'AUTH_LOGOUT' });\n      \n      console.error('Logout error:', error);\n      return { success: true }; // Always succeed for UX\n    }\n  }, []);\n  \n  /**\n   * Update user profile data\n   * @param {Object} updates - User data updates\n   */\n  const updateUser = useCallback((updates) => {\n    const updatedUser = { ...authState.user, ...updates };\n    setStorageItem(AUTH_STORAGE_KEYS.USER, updatedUser);\n    dispatch({ type: 'AUTH_UPDATE_USER', payload: updates });\n  }, [authState.user]);\n  \n  /**\n   * Clear current error state\n   */\n  const clearError = useCallback(() => {\n    dispatch({ type: 'CLEAR_ERROR' });\n  }, []);\n  \n  // ===== UTILITY FUNCTIONS =====\n  \n  /**\n   * Check if user has specific role\n   * @param {string} role - Role to check\n   */\n  const hasRole = useCallback((role) => {\n    return authState.user?.role === role;\n  }, [authState.user]);\n  \n  /**\n   * Check if user can access resource based on roles\n   * @param {string[]} allowedRoles - Array of allowed roles\n   */\n  const canAccess = useCallback((allowedRoles) => {\n    if (!authState.isAuthenticated || !authState.user) return false;\n    return allowedRoles.includes(authState.user.role);\n  }, [authState.isAuthenticated, authState.user]);\n  \n  // ===== INITIALIZATION EFFECT =====\n  useEffect(() => {\n    const initializeAuth = async () => {\n      const storedUser = getStorageItem(AUTH_STORAGE_KEYS.USER);\n      const storedToken = getStorageItem(AUTH_STORAGE_KEYS.TOKEN);\n      \n      if (storedUser && storedToken && isTokenValid(storedToken)) {\n        dispatch({ \n          type: 'AUTH_SUCCESS', \n          payload: { user: storedUser } \n        });\n      } else if (storedToken || storedUser) {\n        // Clean up invalid/expired data\n        removeStorageItems(Object.values(AUTH_STORAGE_KEYS));\n      }\n      \n      setInitializationComplete(true);\n    };\n    \n    initializeAuth();\n  }, []);\n  \n  // ===== AUTO LOGOUT ON TOKEN EXPIRY =====\n  useEffect(() => {\n    if (!authState.isAuthenticated) return;\n    \n    const checkTokenExpiry = () => {\n      const token = getStorageItem(AUTH_STORAGE_KEYS.TOKEN);\n      if (!isTokenValid(token)) {\n        logout();\n      }\n    };\n    \n    // Check every minute\n    const interval = setInterval(checkTokenExpiry, 60000);\n    \n    return () => clearInterval(interval);\n  }, [authState.isAuthenticated, logout]);\n  \n  // Don't render children until initialization is complete\n  if (!initializationComplete) {\n    return (\n      <div className=\"loading-spinner-container\" style={{ \n        display: 'flex', \n        justifyContent: 'center', \n        alignItems: 'center', \n        height: '100vh' \n      }}>\n        <div className=\"loading-spinner\" />\n      </div>\n    );\n  }\n  \n  return (\n    <AuthContext.Provider value={contextValue}>\n      {children}\n    </AuthContext.Provider>\n  );\n};\n\n// ===== NAMED EXPORTS FOR UTILITIES =====\nexport { USER_ROLES, AUTH_STATES };\nexport default AuthContext;
+import React, { createContext, useContext, useState } from 'react';
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const login = async (credentials) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Mock authentication - in real app, this would be an API call
+      const mockUser = {
+        id: Date.now(),
+        name: credentials.email === 'teacher@test.com' ? 'Dr. Smith' : 'John Doe',
+        email: credentials.email,
+        role: credentials.email === 'teacher@test.com' ? 'teacher' : 'student'
+      };
+      
+      setUser(mockUser);
+      setLoading(false);
+      return true;
+    } catch (err) {
+      setError('Login failed. Please try again.');
+      setLoading(false);
+      return false;
+    }
+  };
+
+  const register = async (userData) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Mock registration - in real app, this would be an API call
+      const newUser = {
+        id: Date.now(),
+        name: userData.name,
+        email: userData.email,
+        role: userData.role
+      };
+      
+      setUser(newUser);
+      setLoading(false);
+      return true;
+    } catch (err) {
+      setError('Registration failed. Please try again.');
+      setLoading(false);
+      return false;
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    setError(null);
+  };
+
+  const clearError = () => setError(null);
+
+  return (
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      error,
+      isAuthenticated: !!user,
+      login,
+      register,
+      logout,
+      clearError
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};

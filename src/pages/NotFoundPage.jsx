@@ -1,1 +1,16 @@
-import React from 'react';\n\nconst NotFoundPage = () => (\n  <div className=\"container\" style={{ padding: '2rem', textAlign: 'center' }}>\n    <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔍</div>\n    <h1>404 - Page Not Found</h1>\n    <p>The page you're looking for doesn't exist.</p>\n    <button className=\"btn-primary\" onClick={() => window.location.href = '/'}>\n      Go Home\n    </button>\n  </div>\n);\n\nexport default NotFoundPage;
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const NotFoundPage = () => {
+  return (
+    <div className="container text-center">
+      <h1>404 - Page Not Found</h1>
+      <p>The page you're looking for doesn't exist.</p>
+      <Link to="/" className="btn-primary">
+        Go Home
+      </Link>
+    </div>
+  );
+};
+
+export default NotFoundPage;

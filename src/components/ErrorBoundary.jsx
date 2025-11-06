@@ -1,1 +1,37 @@
-/**\n * ErrorBoundary Component with Advanced Error Handling\n * \n * Demonstrates:\n * - Class component for error boundaries\n * - Advanced error logging and reporting\n * - Graceful error UI with recovery options\n * - Development vs production error display\n */\n\nimport React from 'react';\n\nclass ErrorBoundary extends React.Component {\n  constructor(props) {\n    super(props);\n    this.state = {\n      hasError: false,\n      error: null,\n      errorInfo: null,\n      eventId: null\n    };\n  }\n\n  static getDerivedStateFromError(error) {\n    // Update state so the next render will show the fallback UI\n    return { hasError: true };\n  }\n\n  componentDidCatch(error, errorInfo) {\n    // Log error details\n    console.error('ErrorBoundary caught an error:', error, errorInfo);\n    \n    // Update state with error details\n    this.setState({\n      error,\n      errorInfo\n    });\n\n    // In a real application, you would send this to an error reporting service\n    this.logErrorToService(error, errorInfo);\n  }\n\n  logErrorToService = (error, errorInfo) => {\n    // Simulate error reporting service\n    const errorReport = {\n      message: error.message,\n      stack: error.stack,\n      componentStack: errorInfo.componentStack,\n      timestamp: new Date().toISOString(),\n      userAgent: navigator.userAgent,\n      url: window.location.href\n    };\n\n    // In production, send to service like Sentry, LogRocket, etc.\n    console.error('Error Report:', errorReport);\n    \n    // Simulate event ID for tracking\n    const eventId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\n    this.setState({ eventId });\n  };\n\n  handleRetry = () => {\n    this.setState({\n      hasError: false,\n      error: null,\n      errorInfo: null,\n      eventId: null\n    });\n  };\n\n  handleReload = () => {\n    window.location.reload();\n  };\n\n  render() {\n    if (this.state.hasError) {\n      const isDevelopment = process.env.NODE_ENV === 'development';\n\n      return (\n        <div className=\"container\" style={{ padding: '2rem', textAlign: 'center' }}>\n          <div className=\"card\" style={{ maxWidth: '600px', margin: '0 auto' }}>\n            <div style={{ marginBottom: '2rem' }}>\n              <div style={{ \n                fontSize: '3rem', \n                marginBottom: '1rem',\n                color: 'var(--error-500)'\n              }}>\n                ⚠️\n              </div>\n              <h1 style={{ color: 'var(--error-600)', marginBottom: '1rem' }}>\n                Oops! Something went wrong\n              </h1>\n              <p style={{ color: 'var(--secondary-600)', marginBottom: '2rem' }}>\n                We're sorry, but an unexpected error occurred. Our team has been notified.\n              </p>\n            </div>\n\n            {/* Action buttons */}\n            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '2rem' }}>\n              <button \n                className=\"btn-primary\"\n                onClick={this.handleRetry}\n              >\n                Try Again\n              </button>\n              <button \n                className=\"btn-secondary\"\n                onClick={this.handleReload}\n              >\n                Reload Page\n              </button>\n              <button \n                className=\"btn-secondary\"\n                onClick={() => window.location.href = '/'}\n              >\n                Go Home\n              </button>\n            </div>\n\n            {/* Error ID for support */}\n            {this.state.eventId && (\n              <div style={{ \n                padding: '1rem', \n                backgroundColor: 'var(--secondary-100)', \n                borderRadius: 'var(--radius-md)', \n                marginBottom: '1rem'\n              }}>\n                <p style={{ fontSize: '0.875rem', color: 'var(--secondary-600)' }}>\n                  Error ID: <code style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>\n                    {this.state.eventId}\n                  </code>\n                </p>\n                <p style={{ fontSize: '0.75rem', color: 'var(--secondary-500)', marginTop: '0.5rem' }}>\n                  Please provide this ID when contacting support.\n                </p>\n              </div>\n            )}\n\n            {/* Development error details */}\n            {isDevelopment && this.state.error && (\n              <details style={{ \n                marginTop: '2rem', \n                textAlign: 'left', \n                backgroundColor: 'var(--error-50)', \n                padding: '1rem', \n                borderRadius: 'var(--radius-md)',\n                border: '1px solid var(--error-200)'\n              }}>\n                <summary style={{ \n                  cursor: 'pointer', \n                  fontWeight: 'var(--font-weight-medium)',\n                  color: 'var(--error-700)',\n                  marginBottom: '1rem'\n                }}>\n                  🐛 Development Error Details\n                </summary>\n                \n                <div style={{ fontSize: '0.875rem' }}>\n                  <h4 style={{ color: 'var(--error-700)', marginBottom: '0.5rem' }}>Error:</h4>\n                  <pre style={{ \n                    backgroundColor: 'white', \n                    padding: '1rem', \n                    borderRadius: 'var(--radius-sm)',\n                    overflow: 'auto',\n                    fontSize: '0.75rem',\n                    color: 'var(--error-800)',\n                    border: '1px solid var(--error-200)',\n                    marginBottom: '1rem'\n                  }}>\n                    {this.state.error.toString()}\n                  </pre>\n                  \n                  <h4 style={{ color: 'var(--error-700)', marginBottom: '0.5rem' }}>Component Stack:</h4>\n                  <pre style={{ \n                    backgroundColor: 'white', \n                    padding: '1rem', \n                    borderRadius: 'var(--radius-sm)',\n                    overflow: 'auto',\n                    fontSize: '0.75rem',\n                    color: 'var(--secondary-700)',\n                    border: '1px solid var(--error-200)'\n                  }}>\n                    {this.state.errorInfo?.componentStack}\n                  </pre>\n                </div>\n              </details>\n            )}\n          </div>\n        </div>\n      );\n    }\n\n    return this.props.children;\n  }\n}\n\nexport default ErrorBoundary;
+import React from 'react';
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="container text-center">
+          <h1>Something went wrong</h1>
+          <p>We're sorry, but something unexpected happened.</p>
+          <button 
+            className="btn-primary"
+            onClick={() => window.location.reload()}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;

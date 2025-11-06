@@ -1,1 +1,132 @@
-/**\n * HomePage Component - Landing page with modern design\n */\n\nimport React from 'react';\nimport { Link } from 'react-router-dom';\nimport { useAuth } from '../contexts/AuthContext';\n\nconst HomePage = () => {\n  const { isAuthenticated, user } = useAuth();\n\n  return (\n    <div style={{ minHeight: '100vh' }}>\n      {/* Hero Section */}\n      <header className=\"bg-primary\" style={{ padding: '4rem 0', textAlign: 'center', color: 'white' }}>\n        <div className=\"container\">\n          <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', marginBottom: '1rem', fontWeight: '700' }}>\n            Assignment Management System\n          </h1>\n          <p style={{ fontSize: '1.25rem', marginBottom: '2rem', opacity: '0.9' }}>\n            Streamline academic workflow with modern web technology\n          </p>\n          \n          {!isAuthenticated ? (\n            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>\n              <Link to=\"/login\" className=\"btn-primary btn-lg\" style={{ backgroundColor: 'white', color: 'var(--primary-600)' }}>\n                Sign In\n              </Link>\n              <Link to=\"/register\" className=\"btn-secondary btn-lg\">\n                Create Account\n              </Link>\n            </div>\n          ) : (\n            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>\n              <Link \n                to={user?.role === 'teacher' ? '/teacher' : '/student'} \n                className=\"btn-primary btn-lg\"\n                style={{ backgroundColor: 'white', color: 'var(--primary-600)' }}\n              >\n                Go to Dashboard\n              </Link>\n            </div>\n          )}\n        </div>\n      </header>\n\n      {/* Features Section */}\n      <section style={{ padding: '4rem 0' }}>\n        <div className=\"container\">\n          <h2 style={{ textAlign: 'center', marginBottom: '3rem', fontSize: '2.5rem' }}>\n            Powerful Features\n          </h2>\n          \n          <div className=\"grid grid-cols-3\" style={{ gap: '2rem' }}>\n            <div className=\"card\" style={{ textAlign: 'center' }}>\n              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📚</div>\n              <h3 style={{ marginBottom: '1rem', color: 'var(--primary-600)' }}>Assignment Management</h3>\n              <p>Create, edit, and organize assignments with ease. Set deadlines and track submissions efficiently.</p>\n            </div>\n            \n            <div className=\"card\" style={{ textAlign: 'center' }}>\n              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>\n              <h3 style={{ marginBottom: '1rem', color: 'var(--success-600)' }}>Smart Grading</h3>\n              <p>Streamlined grading system with detailed feedback and progress tracking for better learning outcomes.</p>\n            </div>\n            \n            <div className=\"card\" style={{ textAlign: 'center' }}>\n              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📱</div>\n              <h3 style={{ marginBottom: '1rem', color: 'var(--secondary-600)' }}>Responsive Design</h3>\n              <p>Access your assignments from any device. Fully responsive design that works on desktop, tablet, and mobile.</p>\n            </div>\n          </div>\n        </div>\n      </section>\n\n      {/* Technology Stack */}\n      <section className=\"bg-secondary\" style={{ padding: '4rem 0' }}>\n        <div className=\"container\">\n          <h2 style={{ textAlign: 'center', marginBottom: '3rem', fontSize: '2.5rem' }}>\n            Built with Modern Technology\n          </h2>\n          \n          <div className=\"grid grid-cols-4\" style={{ gap: '2rem', textAlign: 'center' }}>\n            <div>\n              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⚛️</div>\n              <h4>React 18</h4>\n              <p style={{ fontSize: '0.875rem', color: 'var(--secondary-600)' }}>Modern UI library</p>\n            </div>\n            \n            <div>\n              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎯</div>\n              <h4>ES6+ JavaScript</h4>\n              <p style={{ fontSize: '0.875rem', color: 'var(--secondary-600)' }}>Latest language features</p>\n            </div>\n            \n            <div>\n              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎨</div>\n              <h4>Modern CSS</h4>\n              <p style={{ fontSize: '0.875rem', color: 'var(--secondary-600)' }}>Responsive design</p>\n            </div>\n            \n            <div>\n              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🚀</div>\n              <h4>Vite</h4>\n              <p style={{ fontSize: '0.875rem', color: 'var(--secondary-600)' }}>Fast build tool</p>\n            </div>\n          </div>\n        </div>\n      </section>\n\n      {/* Footer */}\n      <footer style={{ backgroundColor: 'var(--secondary-800)', color: 'var(--secondary-200)', padding: '2rem 0', textAlign: 'center' }}>\n        <div className=\"container\">\n          <p>&copy; 2024 Assignment Management System. Built for academic excellence.</p>\n        </div>\n      </footer>\n    </div>\n  );\n};\n\nexport default HomePage;
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+
+const HomePage = () => {
+  const { user } = useAuth();
+
+  return (
+    <div className="container">
+      {/* Hero Section */}
+      <header className="hero-section">
+        <h1 className="hero-title">Assignment Management System</h1>
+        <p className="hero-subtitle">
+          Streamline your academic workflow with modern web technology. 
+          Manage assignments, grade efficiently, and enhance learning experiences.
+        </p>
+        
+        {!user ? (
+          <div className="auth-buttons">
+            <Link to="/login" className="btn-primary">
+              Sign In
+            </Link>
+            <Link to="/register" className="btn-secondary">
+              Create Account
+            </Link>
+          </div>
+        ) : (
+          <div className="user-welcome">
+            <p>Welcome back, {user.name}!</p>
+            <Link 
+              to={user.role === 'teacher' ? '/teacher' : '/student'} 
+              className="btn-primary"
+            >
+              Go to Dashboard
+            </Link>
+          </div>
+        )}
+      </header>
+      
+      {/* Features Section */}
+      <section className="features-section">
+        <h2>Key Features</h2>
+        <div className="features-grid">
+          <div className="feature-card">
+            <h3>📝 Assignment Management</h3>
+            <p>
+              Create, edit, and organize assignments with an intuitive interface. 
+              Set deadlines, add descriptions, and manage submissions efficiently.
+            </p>
+          </div>
+          <div className="feature-card">
+            <h3>⭐ Smart Grading</h3>
+            <p>
+              Streamlined grading system with detailed feedback capabilities. 
+              Grade submissions quickly and provide meaningful insights to students.
+            </p>
+          </div>
+          <div className="feature-card">
+            <h3>📱 Responsive Design</h3>
+            <p>
+              Access your assignments from any device, anywhere. 
+              Fully responsive design ensures optimal experience on mobile and desktop.
+            </p>
+          </div>
+        </div>
+      </section>
+      
+      
+      
+      
+      {/* Additional Features for Logged-in Users */}
+      {user && (
+        <section className="features-section">
+          <h2>What You Can Do</h2>
+          <div className="features-grid">
+            {user.role === 'teacher' ? (
+              <>
+                <div className="feature-card">
+                  <h3>📚 Create Assignments</h3>
+                  <p>
+                    Design comprehensive assignments with detailed instructions, 
+                    deadlines, and grading criteria.
+                  </p>
+                </div>
+                <div className="feature-card">
+                  <h3>📊 Track Progress</h3>
+                  <p>
+                    Monitor student submissions, track completion rates, 
+                    and analyze performance trends.
+                  </p>
+                </div>
+                <div className="feature-card">
+                  <h3>✅ Grade Efficiently</h3>
+                  <p>
+                    Use our streamlined grading interface to provide 
+                    quick feedback and maintain grade records.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="feature-card">
+                  <h3>📋 View Assignments</h3>
+                  <p>
+                    Access all your assignments in one place with 
+                    clear deadlines and requirements.
+                  </p>
+                </div>
+                <div className="feature-card">
+                  <h3>📤 Submit Work</h3>
+                  <p>
+                    Upload your completed assignments easily and 
+                    track submission status in real-time.
+                  </p>
+                </div>
+                <div className="feature-card">
+                  <h3>📈 Track Grades</h3>
+                  <p>
+                    Monitor your academic progress and view 
+                    detailed feedback from your instructors.
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+};
+
+export default HomePage;

@@ -1,1 +1,84 @@
-/**\n * LoginPage Component with Advanced Form Handling\n */\n\nimport React, { useState } from 'react';\nimport { Link, useNavigate, useLocation } from 'react-router-dom';\nimport { useAuth } from '../contexts/AuthContext';\nimport LoadingSpinner from '../components/LoadingSpinner';\n\nconst LoginPage = () => {\n  const [formData, setFormData] = useState({\n    email: '',\n    password: '',\n    role: 'student'\n  });\n  const [isSubmitting, setIsSubmitting] = useState(false);\n  \n  const { login, error, clearError } = useAuth();\n  const navigate = useNavigate();\n  const location = useLocation();\n  \n  const from = location.state?.from || '/';\n\n  const handleSubmit = async (e) => {\n    e.preventDefault();\n    clearError();\n    setIsSubmitting(true);\n\n    try {\n      const result = await login(formData);\n      \n      if (result.success) {\n        const redirectPath = result.user.role === 'teacher' ? '/teacher' : '/student';\n        navigate(redirectPath, { replace: true });\n      }\n    } finally {\n      setIsSubmitting(false);\n    }\n  };\n\n  const handleInputChange = (e) => {\n    const { name, value } = e.target;\n    setFormData(prev => ({ ...prev, [name]: value }));\n  };\n\n  return (\n    <div className=\"flex items-center justify-center\" style={{ minHeight: '100vh', backgroundColor: 'var(--secondary-50)', padding: '2rem 1rem' }}>\n      <div className=\"card\" style={{ width: '100%', maxWidth: '400px' }}>\n        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>\n          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--secondary-900)' }}>\n            Welcome Back\n          </h1>\n          <p style={{ color: 'var(--secondary-600)' }}>\n            Sign in to your account\n          </p>\n        </div>\n\n        <form onSubmit={handleSubmit}>\n          <div className=\"form-group\">\n            <label className=\"form-label\" htmlFor=\"email\">Email Address</label>\n            <input\n              id=\"email\"\n              name=\"email\"\n              type=\"email\"\n              required\n              className=\"form-input\"\n              placeholder=\"Enter your email\"\n              value={formData.email}\n              onChange={handleInputChange}\n              disabled={isSubmitting}\n            />\n          </div>\n\n          <div className=\"form-group\">\n            <label className=\"form-label\" htmlFor=\"password\">Password</label>\n            <input\n              id=\"password\"\n              name=\"password\"\n              type=\"password\"\n              required\n              className=\"form-input\"\n              placeholder=\"Enter your password\"\n              value={formData.password}\n              onChange={handleInputChange}\n              disabled={isSubmitting}\n            />\n          </div>\n\n          <div className=\"form-group\">\n            <label className=\"form-label\" htmlFor=\"role\">I am a:</label>\n            <select\n              id=\"role\"\n              name=\"role\"\n              className=\"form-input\"\n              value={formData.role}\n              onChange={handleInputChange}\n              disabled={isSubmitting}\n            >\n              <option value=\"student\">Student</option>\n              <option value=\"teacher\">Teacher</option>\n            </select>\n          </div>\n\n          {error && (\n            <div className=\"bg-error\" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>\n              <p className=\"text-error\" style={{ margin: '0', fontSize: '0.875rem' }}>\n                {error}\n              </p>\n            </div>\n          )}\n\n          <button\n            type=\"submit\"\n            className=\"btn-primary\"\n            style={{ width: '100%', marginBottom: '1.5rem' }}\n            disabled={isSubmitting}\n          >\n            {isSubmitting ? (\n              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>\n                <LoadingSpinner /> Signing in...\n              </div>\n            ) : (\n              'Sign In'\n            )}\n          </button>\n        </form>\n\n        <div style={{ textAlign: 'center' }}>\n          <p style={{ color: 'var(--secondary-600)', fontSize: '0.875rem' }}>\n            Don't have an account?{' '}\n            <Link to=\"/register\" className=\"text-primary font-medium\">\n              Create one here\n            </Link>\n          </p>\n        </div>\n      </div>\n    </div>\n  );\n};\n\nexport default LoginPage;
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+
+const LoginPage = () => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const { login, loading, error } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const success = await login(formData);
+    if (success) {
+      // Navigation will be handled based on user role
+      const userRole = formData.email === 'teacher@test.com' ? 'teacher' : 'student';
+      navigate(userRole === 'teacher' ? '/teacher' : '/student');
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>Login</h1>
+        <p>Sign in to your account</p>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          
+          {error && <div className="error">{error}</div>}
+          
+          <button type="submit" className="btn-primary full-width" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+        
+        <div className="demo-accounts">
+          <p><strong>Demo Accounts:</strong></p>
+          <p>Teacher: teacher@test.com</p>
+          <p>Student: Any other email</p>
+        </div>
+        
+        <p>
+          Don't have an account? <Link to="/register">Create one here</Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
