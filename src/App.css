@@ -780,7 +780,7 @@
 
 .auth-card .error {
   background: var(--error-50);
-  color: var(--error-700);
+  color: red;
   padding: var(--spacing-3);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-4);

@@ -12,11 +12,17 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(formData);
-    if (success) {
-      // Navigation will be handled based on user role
-      const userRole = formData.email === 'teacher@test.com' ? 'teacher' : 'student';
-      navigate(userRole === 'teacher' ? '/teacher' : '/student');
+
+    // login() should do the real auth (now or after backend)
+    const user = await login(formData);
+
+    if (user) {
+      // Prefer role coming from backend / AuthContext
+      const role =
+        user.role ||
+        (user.email === 'teacher@test.com' ? 'teacher' : 'student');
+
+      navigate(role === 'teacher' ? '/teacher' : '/student');
     }
   };
 
@@ -70,7 +76,7 @@ const LoginPage = () => {
         <div className="demo-accounts">
           <p><strong>Demo Accounts:</strong></p>
           <p>Teacher: teacher@test.com</p>
-          <p>Student: Any other email</p>
+          <p>Student: Any other registered email</p>
         </div>
         
         <p>

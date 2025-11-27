@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -7,23 +7,31 @@ const RegisterPage = () => {
     name: '',
     email: '',
     password: '',
-    role: 'student'
+    role: 'student',
   });
-  const { register, loading, error } = useAuth();
+
+  const { register, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
+
+  // Clear any old login/register errors when this page loads
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await register(formData);
-    if (success) {
-      navigate(formData.role === 'teacher' ? '/teacher' : '/student');
+    const user = await register(formData); // register returns new user or null
+
+    if (user) {
+      const role = user.role || formData.role;
+      navigate(role === 'teacher' ? '/teacher' : '/student');
     }
   };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -43,7 +51,7 @@ const RegisterPage = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -55,7 +63,7 @@ const RegisterPage = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -67,7 +75,7 @@ const RegisterPage = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="role">Role</label>
             <select
@@ -80,14 +88,14 @@ const RegisterPage = () => {
               <option value="teacher">Teacher</option>
             </select>
           </div>
-          
+
           {error && <div className="error">{error}</div>}
-          
+
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Creating Account...' : 'Register'}
           </button>
         </form>
-        
+
         <p>
           Already have an account? <Link to="/login">Login here</Link>
         </p>

@@ -29,7 +29,7 @@ const HomePage = () => {
             <p>Welcome back, {user.name}!</p>
             <Link 
               to={user.role === 'teacher' ? '/teacher' : '/student'} 
-              className="btn-primary"
+              className="btn-secondary"
             >
               Go to Dashboard
             </Link>
