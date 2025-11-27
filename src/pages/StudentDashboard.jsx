@@ -14,7 +14,6 @@ const StudentDashboard = () => {
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Check file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         setUploadStatus('error');
         alert('File size must be less than 10MB');
@@ -31,14 +30,19 @@ const StudentDashboard = () => {
       return;
     }
 
+    if (!selectedAssignmentId) {
+      alert('Please choose an assignment (use "Submit Work" on a card).');
+      return;
+    }
+
     setUploadStatus('uploading');
     
-    // Simulate file upload
     setTimeout(() => {
       const submission = {
-        assignmentId: selectedAssignmentId || 'demo-assignment',
+        assignmentId: selectedAssignmentId,    // 🔹 tie to specific assignment
         studentId: user?.id,
         studentName: user?.name,
+        studentEmail: user?.email,
         fileName: selectedFile.name,
         fileSize: selectedFile.size,
         fileType: selectedFile.type,
@@ -84,7 +88,7 @@ const StudentDashboard = () => {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   // Mock assignments data
@@ -93,6 +97,17 @@ const StudentDashboard = () => {
     { id: '2', title: 'React Components', dueDate: '2025-12-20', status: 'pending' },
     { id: '3', title: 'API Integration', dueDate: '2025-12-25', status: 'pending' }
   ];
+
+  // 🔹 For now, assume single logged-in student → all submissions are theirs
+  const mySubmissions = submissions;
+
+  // 🔹 How many assignments actually have a submission
+  const submittedAssignmentIds = new Set(
+    mySubmissions.map((s) => s.assignmentId)
+  );
+  const pendingCount = mockAssignments.filter(
+    (a) => !submittedAssignmentIds.has(a.id)
+  ).length;
 
   return (
     <div className="dashboard">
@@ -118,14 +133,14 @@ const StudentDashboard = () => {
         <div className="stat-card stat-card--success">
           <div className="stat-card__icon">✅</div>
           <div className="stat-card__content">
-            <div className="stat-card__value">{submissions.length}</div>
+            <div className="stat-card__value">{submittedAssignmentIds.size}</div>
             <div className="stat-card__label">Submitted</div>
           </div>
         </div>
         <div className="stat-card stat-card--warning">
           <div className="stat-card__icon">⏰</div>
           <div className="stat-card__content">
-            <div className="stat-card__value">{mockAssignments.length - submissions.length}</div>
+            <div className="stat-card__value">{pendingCount}</div>
             <div className="stat-card__label">Pending</div>
           </div>
         </div>
@@ -139,6 +154,7 @@ const StudentDashboard = () => {
             className="btn-primary"
             onClick={() => {
               setShowUploadModal(true);
+              // don’t set assignment here, force them to pick via card
               setSelectedAssignmentId(null);
             }}
           >
@@ -148,23 +164,27 @@ const StudentDashboard = () => {
 
         <div className="assignments-list">
           {mockAssignments.map((assignment) => {
-            const isSubmitted = submissions.some(s => s.assignmentId === assignment.id);
+            const isSubmitted = submittedAssignmentIds.has(assignment.id);
             return (
               <div key={assignment.id} className="assignment-item">
                 <div className="assignment-item__content">
                   <h3>{assignment.title}</h3>
                   <div className="assignment-item__meta">
                     <span>📅 Due: {assignment.dueDate}</span>
-                    <span className={`status-badge ${isSubmitted ? 'status-badge--submitted' : 'status-badge--pending'}`}>
+                    <span
+                      className={`status-badge ${
+                        isSubmitted ? 'status-badge--submitted' : 'status-badge--pending'
+                      }`}
+                    >
                       {isSubmitted ? 'Submitted' : 'Pending'}
                     </span>
                   </div>
                 </div>
-                <button 
+                <button
                   className="btn-secondary btn-sm"
                   onClick={() => {
                     setShowUploadModal(true);
-                    setSelectedAssignmentId(assignment.id);
+                    setSelectedAssignmentId(assignment.id);   // 🔹 tie upload to this assignment
                   }}
                   disabled={isSubmitted}
                 >
@@ -177,20 +197,30 @@ const StudentDashboard = () => {
       </div>
 
       {/* Submissions History */}
-      {submissions.length > 0 && (
+      {mySubmissions.length > 0 && (
         <div className="submissions-section">
           <h2>Recent Submissions</h2>
           <div className="submissions-list">
-            {submissions.map((submission) => (
+            {mySubmissions.map((submission) => (
               <div key={submission.id} className="submission-item">
                 <div className="submission-item__icon">📄</div>
                 <div className="submission-item__content">
                   <h4>{submission.fileName}</h4>
                   <p className="text-sm text-secondary">
-                    {formatFileSize(submission.fileSize)} • Submitted {new Date(submission.submittedAt).toLocaleDateString()}
+                    {formatFileSize(submission.fileSize)} • Submitted{' '}
+                    {new Date(submission.submittedAt).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm">
+                    {submission.grade
+                      ? `Grade: ${submission.grade}/100${
+                          submission.feedback ? ` • Feedback: ${submission.feedback}` : ''
+                        }`
+                      : 'Status: Waiting for grading'}
                   </p>
                 </div>
-                <span className="status-badge status-badge--submitted">{submission.status}</span>
+                <span className="status-badge status-badge--submitted">
+                  {submission.status}
+                </span>
               </div>
             ))}
           </div>
@@ -203,7 +233,7 @@ const StudentDashboard = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Upload Assignment</h2>
-              <button 
+              <button
                 className="modal-close"
                 onClick={() => setShowUploadModal(false)}
                 aria-label="Close"
@@ -213,7 +243,7 @@ const StudentDashboard = () => {
             </div>
 
             <div className="modal-body">
-              <div 
+              <div
                 className="file-upload-area"
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -245,7 +275,7 @@ const StudentDashboard = () => {
                     <h4>{selectedFile.name}</h4>
                     <p>{formatFileSize(selectedFile.size)}</p>
                   </div>
-                  <button 
+                  <button
                     className="selected-file__remove"
                     onClick={() => {
                       setSelectedFile(null);
@@ -275,14 +305,14 @@ const StudentDashboard = () => {
             </div>
 
             <div className="modal-footer">
-              <button 
+              <button
                 className="btn-secondary"
                 onClick={() => setShowUploadModal(false)}
                 disabled={uploadStatus === 'uploading'}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 className="btn-primary"
                 onClick={handleUpload}
                 disabled={!selectedFile || uploadStatus === 'uploading'}

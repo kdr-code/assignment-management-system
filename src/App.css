@@ -801,7 +801,7 @@
 }
 
 .demo-accounts strong {
-  color: #f4f3f3;
+  color: #ffffff;
   font-weight: 700;
 }
 
@@ -814,20 +814,20 @@
 }
 
 .submission-detail h3 {
-  color: #1a202c;
+  color: #aeb7c9;
   font-size: 1.125rem;
   margin-bottom: var(--spacing-3);
   font-weight: 600;
 }
 
 .submission-detail p {
-  color: #000000;
+  color: #ffffff;
   margin-bottom: var(--spacing-2);
   font-size: 0.95rem;
 }
 
 .submission-detail strong {
-  color: #1a202c;
+  color: #cad2e4;
   font-weight: 600;
 }
 

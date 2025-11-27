@@ -4,7 +4,7 @@ import { useApp } from '../contexts/AppContext';
 
 const TeacherDashboard = () => {
   const { user, logout } = useAuth();
-  const { assignments, submissions, createAssignment } = useApp();
+  const { assignments, submissions, createAssignment, gradeSubmission } = useApp();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAssignmentsModal, setShowAssignmentsModal] = useState(false);
   const [showGradingModal, setShowGradingModal] = useState(false);
@@ -54,13 +54,17 @@ const TeacherDashboard = () => {
   };
   
   const handleGradeSubmission = () => {
+    if (!selectedSubmission) return;
     if (!grade) {
       alert('Please enter a grade');
       return;
     }
-    
-    // In a real app, this would update the submission in the backend
+
+    // update submissions via context
+    gradeSubmission(selectedSubmission.id, grade, feedback);
+
     alert(`Grade ${grade}/100 submitted with feedback!`);
+
     setGrade('');
     setFeedback('');
     setSelectedSubmission(null);
@@ -179,6 +183,7 @@ const TeacherDashboard = () => {
                   <h4>{submission.studentName || 'Student'}</h4>
                   <p className="text-sm text-secondary">
                     {submission.fileName} • {new Date(submission.submittedAt).toLocaleDateString()}
+                    {submission.grade && ` • Grade: ${submission.grade}/100`}
                   </p>
                 </div>
                 <button 
@@ -295,7 +300,6 @@ const TeacherDashboard = () => {
 
             <div className="modal-body">
               {selectedSubmission ? (
-                // Grade specific submission
                 <>
                   <div className="submission-detail">
                     <h3>Student: {selectedSubmission.studentName}</h3>
@@ -330,7 +334,6 @@ const TeacherDashboard = () => {
                   </div>
                 </>
               ) : (
-                // List all submissions
                 <div className="submissions-list">
                   {submissions.length > 0 ? (
                     submissions.map((submission) => (
@@ -340,6 +343,7 @@ const TeacherDashboard = () => {
                           <h4>{submission.studentName || 'Student'}</h4>
                           <p className="text-sm">
                             {submission.fileName} • {new Date(submission.submittedAt).toLocaleDateString()}
+                            {submission.grade && ` • Grade: ${submission.grade}/100`}
                           </p>
                         </div>
                         <button 

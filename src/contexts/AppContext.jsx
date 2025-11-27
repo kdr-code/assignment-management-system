@@ -23,7 +23,17 @@ const appReducer = (state, action) => {
       return { ...state, submissions: action.payload, loading: false };
     case 'ADD_SUBMISSION':
       return { ...state, submissions: [...state.submissions, action.payload] };
-    default:
+    case 'UPDATE_SUBMISSION':
+  return {
+    ...state,
+    submissions: state.submissions.map((s) =>
+      s.id === action.payload.id
+        ? { ...s, grade: action.payload.grade, feedback: action.payload.feedback }
+        : s
+    ),
+  };
+
+      default:
       return state;
   }
 };
@@ -49,10 +59,18 @@ export const AppProvider = ({ children }) => {
     dispatch({ type: 'ADD_SUBMISSION', payload: newSubmission });
   };
 
+  const gradeSubmission = (submissionId, grade, feedback) => {
+  dispatch({
+    type: 'UPDATE_SUBMISSION',
+    payload: { id: submissionId, grade, feedback }
+  });
+};
+
   const value = {
     ...state,
     createAssignment,
-    submitAssignment
+    submitAssignment,
+    gradeSubmission
   };
 
   return (
