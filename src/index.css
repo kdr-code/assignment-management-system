@@ -330,7 +330,7 @@ select {
   border: 1px solid var(--secondary-300);
   border-radius: var(--radius-md);
   background-color: white;
-  color: #000000;
+  color: #f2f1f1;
   font-size: 1rem;
   font-weight: 500;
   transition: all var(--transition-fast);
@@ -517,6 +517,7 @@ label {
   color: white;
   border-radius: var(--radius-xl);
   margin-bottom: var(--spacing-12);
+  margin-top: var(--spacing-12);
   position: relative;
   overflow: hidden;
 }
@@ -858,7 +859,7 @@ label {
   }
   
   .feature-card {
-    background-color: var(--secondary-100);
+    background-color: white;
     border-color: var(--secondary-200);
   }
 }

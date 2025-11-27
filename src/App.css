@@ -269,8 +269,8 @@
 /* ===== PROFESSIONAL DASHBOARD STYLES ===== */
 
 .dashboard {
-  max-width: 1400px;
-  margin: 0 auto;
+  border-radius: var(--radius-xl);;
+  margin: 30px;
   padding: var(--spacing-6);
   background-color: #f8f9fa;
   min-height: 100vh;
@@ -603,13 +603,13 @@
 
 .file-upload-area h3 {
   font-size: 1.25rem;
-  color: #000000;
+  color: #ffffff;
   margin-bottom: var(--spacing-2);
   font-weight: 600;
 }
 
 .file-upload-area p {
-  color: #000000;
+  color: #ffffff;
   margin-bottom: var(--spacing-4);
 }
 
@@ -797,11 +797,11 @@
 
 .demo-accounts p {
   margin: var(--spacing-1) 0;
-  color: #000000;
+  color: #f2f0f0;
 }
 
 .demo-accounts strong {
-  color: #000000;
+  color: #f4f3f3;
   font-weight: 700;
 }
 
